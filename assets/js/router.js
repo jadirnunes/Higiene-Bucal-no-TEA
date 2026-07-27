@@ -2,6 +2,14 @@
   const pageContent = document.getElementById('page-content');
   const routerScript = document.currentScript || document.querySelector('script[src$="assets/js/router.js"], script[src$="../assets/js/router.js"]');
   const courseRootUrl = routerScript ? new URL('../../', routerScript.src) : new URL('./', location.href);
+  const fixedIndexUrl = new URL('index.html', courseRootUrl);
+
+  function keepAddressOnIndex(){
+    const currentUrl = new URL(location.href);
+    if(currentUrl.pathname !== fixedIndexUrl.pathname || currentUrl.search || currentUrl.hash){
+      history.replaceState(null, '', fixedIndexUrl.pathname);
+    }
+  }
   const normalizePath = window.CourseUtils?.normalizePath || (path => {
     if(!path) return 'index.html';
     const cleanPath = String(path).replace(/\\/g, '/').split('?')[0].split('#')[0];
@@ -63,15 +71,7 @@
   }
 
   function getHistoryUrl(routePath){
-    const root = new URL(courseRootUrl);
-    const rootPath = root.pathname.replace(/\/$/, '') + '/';
-    return new URL(`${rootPath}#/${normalizePath(routePath)}`, root);
-  }
-
-  function parseHashRoute(hash){
-    if(!hash) return '';
-    const m = String(hash).match(/^#\/?(.+)$/);
-    return m ? m[1] : '';
+    return new URL(normalizePath(routePath), courseRootUrl);
   }
 
   function buildRouteContext(targetPath){
@@ -287,12 +287,6 @@
     copyFragmentToContainer(fragmentSection);
     syncDocumentMetadata();
 
-    if(options.replace){
-      history.replaceState({ route: normalizedRoute }, '', `${historyUrl.pathname}${historyUrl.search}${historyUrl.hash}`);
-    } else if(options.push){
-      history.pushState({ route: normalizedRoute }, '', `${historyUrl.pathname}${historyUrl.search}${historyUrl.hash}`);
-    }
-
     currentRoute = normalizedRoute;
 
     if(typeof window.initPage === 'function'){
@@ -343,22 +337,13 @@
     await navigate(targetRoute, { push: true });
   });
 
-  window.addEventListener('popstate', async () => {
-    const hashRoute = parseHashRoute(location.hash);
-    const routePath = hashRoute || normalizePath(location.pathname || location.href);
-    await loadRoute(routePath, { force: true });
-  });
-
-  window.addEventListener('hashchange', async () => {
-    const hashRoute = parseHashRoute(location.hash);
-    if(hashRoute){
-      await loadRoute(hashRoute, { force: true });
-    }
+  window.addEventListener('popstate', () => {
+    keepAddressOnIndex();
   });
 
   const ready = (async () => {
-    const hashRoute = parseHashRoute(location.hash);
-    const initialRoute = hashRoute || normalizePath(location.pathname || location.href);
+    keepAddressOnIndex();
+    const initialRoute = 'index.html';
     const pageSource = pageContent.dataset.pageSrc;
 
     if(pageSource){
