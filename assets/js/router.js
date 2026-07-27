@@ -5,8 +5,9 @@
   const fixedIndexUrl = new URL('index.html', courseRootUrl);
 
   function keepAddressOnIndex(){
-    const currentUrl = new URL(location.href);
-    if(currentUrl.pathname !== fixedIndexUrl.pathname || currentUrl.search || currentUrl.hash){
+    const currentPath = (location.pathname || '').replace(/\/$/, '');
+    const fixedPath = fixedIndexUrl.pathname.replace(/\/$/, '');
+    if(currentPath !== fixedPath || location.search || location.hash){
       history.replaceState(null, '', fixedIndexUrl.pathname);
     }
   }
@@ -141,20 +142,20 @@
     return Boolean(resolvePageSource(routePath));
   }
 
-    function rewriteRelativeUrls(fragment, baseUrl){
+    function rewriteAssets(fragmentSection, pageSource){
+    const baseUrl = new URL(decodeURIComponent(pageSource), courseRootUrl);
+    const rootPathname = new URL(courseRootUrl).pathname.replace(/\/$/, '');
     const selector = 'img[src], a[href], source[src], video[src], audio[src], track[src], link[href][rel="stylesheet"], script[src], embed[src], object[data], use[href]';
-    fragment.querySelectorAll(selector).forEach(element => {
+    fragmentSection.querySelectorAll(selector).forEach(element => {
       const attrMap = {
         IMG: 'src', A: 'href', SOURCE: 'src', VIDEO: 'src', AUDIO: 'src',
         TRACK: 'src', LINK: 'href', SCRIPT: 'src', EMBED: 'src',
         OBJECT: 'data', USE: 'href'
       };
       const attrName = attrMap[element.tagName];
-      if(!attrName){
-        return;
-      }
+      if(!attrName){ return; }
       const attrValue = element.getAttribute(attrName);
-      if(!attrValue) return;
+      if(!attrValue){ return; }
       if(attrValue.startsWith('#') || attrValue.startsWith('data:') || attrValue.startsWith('mailto:') || attrValue.startsWith('tel:') || attrValue.startsWith('javascript:') || attrValue.startsWith('blob:')) {
         return;
       }
@@ -162,16 +163,16 @@
         return;
       }
       try {
-        const resolved = new URL(attrValue, baseUrl).href;
-        const absolutePath = new URL(resolved).pathname.replace(/^\//, '');
-        element.setAttribute(attrName, absolutePath);
+        const resolvedPath = new URL(attrValue, baseUrl).pathname;
+        let relPath = resolvedPath;
+        if(rootPathname && resolvedPath.startsWith(rootPathname + '/')){
+          relPath = resolvedPath.slice(rootPathname.length + 1);
+        } else if(rootPathname && resolvedPath === rootPathname){
+          relPath = '.';
+        }
+        element.setAttribute(attrName, relPath);
       } catch(error) {}
     });
-  }
-
-  function rewriteAssets(fragmentSection, pageSource){
-    const baseUrl = new URL(decodeURIComponent(pageSource), courseRootUrl);
-    rewriteRelativeUrls(fragmentSection, baseUrl);
   }
 
 function copyFragmentToContainer(fragmentSection){
