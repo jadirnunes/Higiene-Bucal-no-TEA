@@ -1,0 +1,24 @@
+/* Player */
+.video-wrapper {
+    width: 55%;
+    margin: 0 auto;
+}
+
+.video-wrapper iframe {
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    border: none;
+    background: #000000;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+
+
+
+
+
+
+
+

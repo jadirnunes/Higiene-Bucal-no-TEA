@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eef9ff"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" rx="40" fill="url(#g)"/>
+  <rect x="60" y="60" width="1080" height="680" rx="36" fill="#ffffff" stroke="#092e5f" stroke-width="6"/>
+  <circle cx="180" cy="170" r="46" fill="#092e5f" opacity="0.18"/>
+  <circle cx="260" cy="220" r="70" fill="#092e5f" opacity="0.10"/>
+  <circle cx="1060" cy="640" r="120" fill="#092e5f" opacity="0.08"/>
+  <rect x="110" y="290" width="980" height="14" rx="7" fill="#092e5f" opacity="0.18"/>
+  <rect x="110" y="330" width="860" height="14" rx="7" fill="#092e5f" opacity="0.14"/>
+  <rect x="110" y="370" width="920" height="14" rx="7" fill="#092e5f" opacity="0.12"/>
+  <text x="110" y="220" font-family="Poppins, Arial, sans-serif" font-size="56" fill="#092e5f" font-weight="700">Foto</text>
+  <text x="110" y="260" font-family="Poppins, Arial, sans-serif" font-size="28" fill="#1d3f6b" opacity="0.9">Imagem ilustrativa</text>
+  <text x="110" y="520" font-family="Poppins, Arial, sans-serif" font-size="22" fill="#3b3b3b" opacity="0.85">Imagem placeholder offline (SVG)</text>
+</svg>
