@@ -141,7 +141,40 @@
     return Boolean(resolvePageSource(routePath));
   }
 
-  function copyFragmentToContainer(fragmentSection){
+    function rewriteRelativeUrls(fragment, baseUrl){
+    const selector = 'img[src], a[href], source[src], video[src], audio[src], track[src], link[href][rel="stylesheet"], script[src], embed[src], object[data], use[href]';
+    fragment.querySelectorAll(selector).forEach(element => {
+      const attrMap = {
+        IMG: 'src', A: 'href', SOURCE: 'src', VIDEO: 'src', AUDIO: 'src',
+        TRACK: 'src', LINK: 'href', SCRIPT: 'src', EMBED: 'src',
+        OBJECT: 'data', USE: 'href'
+      };
+      const attrName = attrMap[element.tagName];
+      if(!attrName){
+        return;
+      }
+      const attrValue = element.getAttribute(attrName);
+      if(!attrValue) return;
+      if(attrValue.startsWith('#') || attrValue.startsWith('data:') || attrValue.startsWith('mailto:') || attrValue.startsWith('tel:') || attrValue.startsWith('javascript:') || attrValue.startsWith('blob:')) {
+        return;
+      }
+      if(/^(https?:)?\/\//.test(attrValue) || attrValue.startsWith('/')) {
+        return;
+      }
+      try {
+        const resolved = new URL(attrValue, baseUrl).href;
+        const absolutePath = new URL(resolved).pathname.replace(/^\//, '');
+        element.setAttribute(attrName, absolutePath);
+      } catch(error) {}
+    });
+  }
+
+  function rewriteAssets(fragmentSection, pageSource){
+    const baseUrl = new URL(decodeURIComponent(pageSource), courseRootUrl);
+    rewriteRelativeUrls(fragmentSection, baseUrl);
+  }
+
+function copyFragmentToContainer(fragmentSection){
     const nextClasses = fragmentSection.className;
     const nextAttributes = Array.from(fragmentSection.attributes);
     const nextInnerHtml = fragmentSection.innerHTML;
@@ -284,6 +317,7 @@
       }));
     }
 
+    rewriteAssets(fragmentSection, pageSource);
     copyFragmentToContainer(fragmentSection);
     syncDocumentMetadata();
 
