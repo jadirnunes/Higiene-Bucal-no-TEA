@@ -63,7 +63,15 @@
   }
 
   function getHistoryUrl(routePath){
-    return new URL(normalizePath(routePath), courseRootUrl);
+    const root = new URL(courseRootUrl);
+    const rootPath = root.pathname.replace(/\/$/, '') + '/';
+    return new URL(`${rootPath}#/${normalizePath(routePath)}`, root);
+  }
+
+  function parseHashRoute(hash){
+    if(!hash) return '';
+    const m = String(hash).match(/^#\/?(.+)$/);
+    return m ? m[1] : '';
   }
 
   function buildRouteContext(targetPath){
@@ -336,12 +344,21 @@
   });
 
   window.addEventListener('popstate', async () => {
-    const routePath = normalizePath(location.pathname || location.href);
+    const hashRoute = parseHashRoute(location.hash);
+    const routePath = hashRoute || normalizePath(location.pathname || location.href);
     await loadRoute(routePath, { force: true });
   });
 
+  window.addEventListener('hashchange', async () => {
+    const hashRoute = parseHashRoute(location.hash);
+    if(hashRoute){
+      await loadRoute(hashRoute, { force: true });
+    }
+  });
+
   const ready = (async () => {
-    const initialRoute = normalizePath(location.pathname || location.href);
+    const hashRoute = parseHashRoute(location.hash);
+    const initialRoute = hashRoute || normalizePath(location.pathname || location.href);
     const pageSource = pageContent.dataset.pageSrc;
 
     if(pageSource){
