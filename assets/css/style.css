@@ -557,15 +557,10 @@ p{ margin:0 0 12px 0; }
 /* Slide */
 
 .sequence-stage{
-
     height:620px;
-
     display:grid;
-
     grid-template-rows:1fr 95px;
-
-    gap:12px;
-
+    gap:4px;
     padding:18px;
 
 }
