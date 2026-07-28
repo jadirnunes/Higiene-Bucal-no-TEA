@@ -582,6 +582,8 @@ p{ margin:0 0 12px 0; }
     height:auto;
     max-height:330px;
     object-fit:contain;
+    border-radius:20px;
+    box-shadow:0 3px 12px rgba(0,0,0,.08);
 }
 
 /* Legenda */
